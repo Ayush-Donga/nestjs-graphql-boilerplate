@@ -1,0 +1,22 @@
+nestjs-graphql-boilerplate/
+├── src/
+│   ├── auth/
+│   │   ├── auth.module.ts
+│   │   ├── auth.service.ts
+│   │   ├── auth.resolver.ts
+│   │   ├── jwt.strategy.ts
+│   │   └── jwt.guard.ts
+│   ├── users/
+│   │   ├── users.module.ts
+│   │   ├── users.service.ts
+│   │   ├── users.resolver.ts
+│   │   ├── user.entity.ts
+│   │   └── dto/
+│   │       ├── create-user.input.ts
+│   │       └── update-user.input.ts
+│   ├── app.module.ts
+│   └── main.ts
+├── .env
+├── .env.example
+├── tsconfig.json
+└── package.json
