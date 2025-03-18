@@ -1,0 +1,41 @@
+
+// user create
+mutation {
+  createUser(createUserInput: { 
+    name: "John Doe", 
+    email: "john@example.com", 
+    password: "password123" 
+  }) {
+    id
+    name
+    email
+  }
+}
+
+// response
+{
+  "data": {
+    "createUser": {
+      "id": 1,
+      "name": "John Doe",
+      "email": "john@example.com"
+    }
+  }
+}
+
+// user login
+mutation {
+  login(email: "john@example.com", password: "password123") {
+    access_token
+  }
+}
+
+
+// response
+{
+  "data": {
+    "login": {
+      "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImpvaG5AZXhhbXBsZS5jb20iLCJzdWIiOjcsImlhdCI6MTc0MjI4NzY2NiwiZXhwIjoxNzQyMjkxMjY2fQ.YimfWcRZSKGGVDno-w8XLJH-M5dHJcF9qWOeQ-d4mII"
+    }
+  }
+}

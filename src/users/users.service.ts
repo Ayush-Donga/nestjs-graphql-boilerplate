@@ -1,10 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
 import { CreateUserInput } from './dto/create-user.input';
 import { UpdateUserInput } from './dto/update-user.input';
 import * as bcrypt from 'bcrypt';
+import { handleDatabaseError } from 'src/utils/exception.util';
 
 @Injectable()
 export class UsersService {
@@ -14,32 +15,57 @@ export class UsersService {
   ) {}
 
   async create(createUserInput: CreateUserInput): Promise<User> {
-    const hashedPassword = await bcrypt.hash(createUserInput.password, 10);
-    const user = this.usersRepository.create({
-      ...createUserInput,
-      password: hashedPassword,
-    });
-    return this.usersRepository.save(user);
+    try {
+      const hashedPassword = await bcrypt.hash(createUserInput.password, 10);
+      
+      const user = this.usersRepository.create({
+        ...createUserInput,
+        password: hashedPassword,
+      });
+
+      return await this.usersRepository.save(user);
+    } catch (error) {
+      handleDatabaseError(error);
+    }
   }
 
   async findAll(): Promise<User[]> {
-    return this.usersRepository.find();
+    try {
+      return await this.usersRepository.find();
+    } catch (error) {
+      throw new InternalServerErrorException('Failed to retrieve users.');
+    }
   }
 
   async findOne(id: number): Promise<User> {
-    return this.usersRepository.findOneOrFail({ where: { id } });
+    try {
+      return await this.usersRepository.findOneOrFail({ where: { id } });
+    } catch (error) {
+      throw new NotFoundException(`User with ID ${id} not found.`);
+    }
   }
 
   async update(id: number, updateUserInput: UpdateUserInput): Promise<User> {
-    const user = await this.findOne(id);
-    if (updateUserInput.password) {
-      updateUserInput.password = await bcrypt.hash(updateUserInput.password, 10);
+    try {
+      const user = await this.findOne(id);
+
+      if (updateUserInput.password) {
+        updateUserInput.password = await bcrypt.hash(updateUserInput.password, 10);
+      }
+
+      await this.usersRepository.update(id, updateUserInput);
+      return this.findOne(id);
+    } catch (error) {
+      if (error instanceof NotFoundException) throw error;
+      handleDatabaseError(error);
     }
-    await this.usersRepository.update(id, updateUserInput);
-    return this.findOne(id);
   }
 
   async findByEmail(email: string): Promise<User> {
-    return this.usersRepository.findOneOrFail({ where: { email } });
+    try {
+      return await this.usersRepository.findOneOrFail({ where: { email } });
+    } catch (error) {
+      throw new NotFoundException(`User with email ${email} not found.`);
+    }
   }
 }

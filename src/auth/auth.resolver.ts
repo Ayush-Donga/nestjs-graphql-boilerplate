@@ -1,17 +1,24 @@
-import { Resolver, Mutation, Args } from '@nestjs/graphql';
+import { Resolver, Mutation, Args, ObjectType, Field } from '@nestjs/graphql';
 import { AuthService } from './auth.service';
+
+@ObjectType()
+class LoginResponse {
+  @Field()
+  access_token: string;
+}
 
 @Resolver()
 export class AuthResolver {
   constructor(private authService: AuthService) {}
 
-  @Mutation(() => String)
+  @Mutation(() => LoginResponse)
   async login(
     @Args('email') email: string,
     @Args('password') password: string,
-  ): Promise<{ access_token: string }> {
+  ): Promise<LoginResponse> {
     const user = await this.authService.validateUser(email, password);
     if (!user) throw new Error('Invalid credentials');
+
     return this.authService.login(user);
   }
 }
