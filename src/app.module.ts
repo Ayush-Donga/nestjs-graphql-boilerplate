@@ -8,7 +8,7 @@ import { ConfigModule } from '@nestjs/config';
 import { typeOrmConfig } from './configs/typeorm';
 
 @Module({
-  imports: [
+  imports: [  
     ConfigModule.forRoot({
       isGlobal: true,
     }),
